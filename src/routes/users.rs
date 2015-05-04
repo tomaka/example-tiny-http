@@ -30,7 +30,8 @@ pub fn handle_user_register_post(request: &mut tiny_http::Request, _: &route_rec
                                  templates: &templates::TemplatesCache, db: &database::Transaction)
                                  -> Result<tiny_http::Response<Box<Read + Send>>, Box<Error>>
 {
-    request.as_reader().read_to_string();
+    let mut data = String::new();
+    try!(request.as_reader().read_to_string(&mut data));
 
     panic!("post");
 }
