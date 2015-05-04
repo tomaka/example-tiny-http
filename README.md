@@ -1,1 +1,1 @@
-BUILDPACK_URL=https://github.com/alexcrichton/heroku-buildpack-rust
+BUILDPACK_URL=https://github.com/ddollar/heroku-buildpack-multi.git
