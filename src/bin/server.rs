@@ -5,5 +5,6 @@ fn main() {
     std::env::set_var("RUST_BACKTRACE", "1");
 
     let db = std::env::var("DATABASE").unwrap_or("postgres://postgres:postgres@localhost/my_db".to_string());
-    example_tiny_http::start(&db, 8000);
+    let port = std::env::var("PORT").ok().and_then(|p| p.parse().ok()).unwrap_or(8000);
+    example_tiny_http::start(&db, port);
 }
