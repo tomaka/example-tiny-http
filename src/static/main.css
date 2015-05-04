@@ -1,0 +1,12 @@
+html {
+    background-color: #ccc;
+    height: 100%;
+}
+
+body {
+    background-color: white;
+    margin: auto;
+    width: 80%;
+    height: 100%;
+    padding: 1.5em;
+}

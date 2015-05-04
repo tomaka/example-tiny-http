@@ -1,0 +1,15 @@
+[package]
+name = "example-tiny-http"
+version = "0.0.1"
+authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
+
+[dependencies]
+chrono = "0.2"
+mustache = "0.5"
+openssl = "0.6"
+postgres = "0.8"
+route-recognizer = "0.1"
+rustc-serialize = "0.3"
+
+[dependencies.tiny_http]
+git = "https://github.com/frewsxcv/tiny-http"

@@ -1,0 +1,7 @@
+{{#block_title}}404 error{{/block_title}}
+
+{{#block_body}}
+    <h2>404 error</h2>
+
+    <p>This page doesn't exist.</p>
+{{/block_body}}

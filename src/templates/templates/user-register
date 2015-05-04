@@ -1,0 +1,14 @@
+{{#block_title}}User registration{{/block_title}}
+
+{{#block_body}}
+    <h2>New user creation</h2>
+
+    <p>
+        <form action="/users/register" method="POST">
+            <input type="email" label="E-mail address" />
+            <input type="password" label="Password" />
+
+            <button type="submit">Register</button>
+        </form>
+    </p>
+{{/block_body}}
