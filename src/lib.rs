@@ -23,16 +23,18 @@ mod templates;
 ///
 /// - `db_url` must be an URL suitable for postgres.
 /// - `port` is the port to use for the server.
-pub fn start(db_url: &'static str, port: u16) {
+pub fn start(db_url: &str, port: u16) {
     // we wrap the server inside an `Arc` because of the restrictions of `thread::catch_panic`
     let server = Arc::new(tiny_http::ServerBuilder::new().with_port(port).build().unwrap());
     let server = Arc::new(server);
 
     loop {
         let server = server.clone();
+        let db_url = db_url.to_string();
+
         thread::catch_panic(move || -> Result<(), Box<Error>> {
             // unfortunately the database connection can't be put in an `Arc`
-            let pool = try!(database::ConnectionPool::new(db_url));
+            let pool = try!(database::ConnectionPool::new(&db_url));
             let templates = templates::TemplatesCache::new();
             let router = routes::Router::new();
 

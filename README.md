@@ -1,0 +1,1 @@
+BUILDPACK_URL=https://github.com/alexcrichton/heroku-buildpack-rust
