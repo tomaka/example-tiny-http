@@ -37,7 +37,7 @@ dependencies = [
 
 [[package]]
 name = "chunked_transfer"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -275,18 +275,18 @@ dependencies = [
 [[package]]
 name = "tiny_http"
 version = "0.0.1"
-source = "git+https://github.com/frewsxcv/tiny-http#7109393d3534875fc8a9358341095091c459b7a4"
+source = "git+https://github.com/frewsxcv/tiny-http#8b6eee9fca361a76891904aa04f872110bb9beeb"
 dependencies = [
  "ascii 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "chunked_transfer 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "chunked_transfer 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "encoding 0.2.32 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
- "url 0.2.31 (registry+https://github.com/rust-lang/crates.io-index)",
+ "url 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "url"
-version = "0.2.31"
+version = "0.2.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "matches 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
