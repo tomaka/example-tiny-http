@@ -27,10 +27,12 @@ pub fn handle_users_list(_: &mut tiny_http::Request, _: &route_recognizer::Param
     let users_list = users_list.query(&[]).unwrap();
 
     let template = templates.start("users-list").unwrap();
-    let template = template.insert_map("users", |mut builder| {
+    let template = template.insert_vec("users", |mut builder| {
         for user in &users_list {
-            let email: String = user.get("login");
-            builder = builder.insert_str("email", email);
+            builder = builder.push_map(|builder| {
+                let email: String = user.get("login");
+                builder.insert_str("email", email)
+            })
         }
 
         builder
