@@ -1,0 +1,7 @@
+{{#block_title}}User registration{{/block_title}}
+
+{{#block_body}}
+    <h2>You have successfully registered!</h2>
+
+    <p>Welcome, {{email}}!</p>
+{{/block_body}}

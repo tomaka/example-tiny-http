@@ -10,6 +10,7 @@ openssl = "0.6"
 postgres = "0.8"
 route-recognizer = "0.1"
 rustc-serialize = "0.3"
+url = "0.2"
 
 [dependencies.tiny_http]
 git = "https://github.com/frewsxcv/tiny-http"

@@ -1,0 +1,9 @@
+{{#block_title}}User registration{{/block_title}}
+
+{{#block_body}}
+    <h2>Welcome to this demo site</h2>
+
+    <p>
+        <a href="/users/register">Click here to register</a>
+    </p>
+{{/block_body}}

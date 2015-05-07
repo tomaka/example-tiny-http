@@ -23,8 +23,12 @@ impl TemplatesCache {
 
         templates.insert("404".to_string(),
                          mustache::compile_str(include_str!("templates/404")));
+        templates.insert("home".to_string(),
+                         mustache::compile_str(include_str!("templates/home")));
         templates.insert("user-register".to_string(),
                          mustache::compile_str(include_str!("templates/user-register")));
+        templates.insert("user-register-success".to_string(),
+                         mustache::compile_str(include_str!("templates/user-register-success")));
 
         TemplatesCache {
             layout: mustache::compile_str(include_str!("templates/main")),

@@ -5,8 +5,8 @@
 
     <p>
         <form action="/users/register" method="POST">
-            <input type="email" label="E-mail address" />
-            <input type="password" label="Password" />
+            <input name="email" type="email" label="E-mail address" />
+            <input name="password" type="password" label="Password" />
 
             <button type="submit">Register</button>
         </form>

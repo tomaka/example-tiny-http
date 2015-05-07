@@ -6,11 +6,10 @@ extern crate openssl;
 extern crate postgres;
 extern crate route_recognizer;
 extern crate rustc_serialize;
+extern crate url;
 
-use std::any::Any;
 use std::error::Error;
 use std::fs::File;
-use std::io::Read;
 use std::path::Path;
 use std::thread;
 use std::sync::Arc;
@@ -66,7 +65,7 @@ pub fn start(db_url: &str, port: u16) {
 /// Tries to find a static file that matches this function's request.
 ///
 /// Returns `None` if it doesn't find any.
-fn serve_static(request: &tiny_http::Request) -> Option<tiny_http::Response<Box<Read + Send>>> {
+fn serve_static(request: &tiny_http::Request) -> Option<tiny_http::ResponseBox> {
     let path = Path::new("./src/static").join(Path::new(&request.get_url()[1..]));
 
     let file = match File::open(&path) {
@@ -82,20 +81,20 @@ fn serve_static(request: &tiny_http::Request) -> Option<tiny_http::Response<Box<
 
     // FIXME: security, handle '..'
 
-    let content_type = match path.extension().and_then(|s| s.to_str()) {
-        Some("gif") => "image/gif",
-        Some("jpg") | Some("jpeg") => "image/jpeg",
-        Some("png") => "image/png",
-        Some("pdf") => "application/pdf",
-        Some("htm") | Some("html") => "text/html; charset=utf8",
-        Some("txt") => "text/plain; charset=utf8",
-        Some("js") => "application/javascript",
-        Some("css") => "text/css; charset=utf8",
-        _ => "text/plain; charset=utf8"
+    let content_type: &[u8] = match path.extension().and_then(|s| s.to_str()) {
+        Some("gif") => b"image/gif",
+        Some("jpg") | Some("jpeg") => b"image/jpeg",
+        Some("png") => b"image/png",
+        Some("pdf") => b"application/pdf",
+        Some("htm") | Some("html") => b"text/html; charset=utf8",
+        Some("txt") => b"text/plain; charset=utf8",
+        Some("js") => b"application/javascript",
+        Some("css") => b"text/css; charset=utf8",
+        _ => b"text/plain; charset=utf8"
     };
 
     let response = tiny_http::Response::from_file(file)
-                        .with_header(format!("Content-Type: {}", content_type).parse().unwrap())
+                        .with_header(tiny_http::Header::from_bytes(&b"Content-Type"[..], content_type).unwrap())
                         .boxed();
     Some(response)
 }
