@@ -67,7 +67,7 @@ impl<'a> TemplateApplier<'a> {
         let template_data = {
             let (title, head, body) = (title.clone(), head.clone(), body.clone());
 
-            let map = self.map;
+            let map = mustache::MapBuilder::new();
             let map = map.insert_fn("block_title", move |input| {
                 *title.lock().unwrap() = input;
                 format!("")
@@ -95,6 +95,10 @@ impl<'a> TemplateApplier<'a> {
 
         let mut output = Vec::new();
         self.layout.render_data(&mut output, &layout_data);
+
+        let final_template = mustache::compile_str(&String::from_utf8(output).unwrap());
+        let mut output = Vec::new();
+        final_template.render_data(&mut output, &self.map.build());
 
         tiny_http::Response::from_data(output)
     }
