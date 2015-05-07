@@ -27,39 +27,50 @@ pub fn start(db_url: &str, port: u16) {
     let server = Arc::new(tiny_http::ServerBuilder::new().with_port(port).build().unwrap());
     let server = Arc::new(server);
 
-    loop {
-        let server = server.clone();
+    let mut join_guards = Vec::new();
+
+    for _ in (0 .. 4) {
         let db_url = db_url.to_string();
+        let server = server.clone();
 
-        thread::catch_panic(move || -> Result<(), Box<Error>> {
-            // unfortunately the database connection can't be put in an `Arc`
-            let pool = try!(database::ConnectionPool::new(&db_url));
-            let templates = templates::TemplatesCache::new();
-            let router = routes::Router::new();
+        join_guards.push(thread::spawn(move || {
+            loop {
+                let db_url = db_url.clone();
+                let server = server.clone();
 
-            // iterating over requests
-            for mut request in server.incoming_requests() {
-                // trying the static files
-                if let Some(response) = serve_static(&request) {
-                    request.respond(response);
+                thread::catch_panic(move || -> Result<(), Box<Error>> {
+                    // unfortunately the database connection can't be put in an `Arc`
+                    let pool = try!(database::ConnectionPool::new(&db_url));
+                    let templates = templates::TemplatesCache::new();
+                    let router = routes::Router::new();
 
-                // trying the routes
-                } else if let Some(response) = router.handle(&mut request, &templates,
-                                                             &pool.transaction())
-                {
-                    request.respond(response);
+                    // iterating over requests
+                    for mut request in server.incoming_requests() {
+                        // trying the static files
+                        if let Some(response) = serve_static(&request) {
+                            request.respond(response);
 
-                // 404
-                } else {
-                    let response = templates.start("404").unwrap().build();
-                    request.respond(response.with_status_code(404));
-                }
+                        // trying the routes
+                        } else if let Some(response) = router.handle(&mut request, &templates,
+                                                                     &pool.transaction())
+                        {
+                            request.respond(response);
+
+                        // 404
+                        } else {
+                            let response = templates.start("404").unwrap().build();
+                            request.respond(response.with_status_code(404));
+                        }
+                    }
+
+                    Ok(())
+
+                }).ok().map(|e| e.unwrap());
             }
-
-            Ok(())
-
-        }).ok().map(|e| e.unwrap());
+        }));
     }
+
+    for g in join_guards { g.join().unwrap(); }
 }
 
 /// Tries to find a static file that matches this function's request.
