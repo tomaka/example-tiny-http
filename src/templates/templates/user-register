@@ -3,6 +3,9 @@
 {{#block_body}}
     <h2>New user creation</h2>
 
+    <p>(note: for this demo, don't enter your real e-mail address as it's
+        publicly visible on the site)</p>
+
     <p>
         <form action="/users/register" method="POST">
             <input name="email" type="email" label="E-mail address" />
