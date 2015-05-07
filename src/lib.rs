@@ -95,6 +95,7 @@ fn serve_static(request: &tiny_http::Request) -> Option<tiny_http::ResponseBox> 
 
     let response = tiny_http::Response::from_file(file)
                         .with_header(tiny_http::Header::from_bytes(&b"Content-Type"[..], content_type).unwrap())
+                        .with_header(tiny_http::Header::from_bytes(&b"Cache-Control"[..], &b"public, max-age=3600"[..]).unwrap())
                         .boxed();
     Some(response)
 }
