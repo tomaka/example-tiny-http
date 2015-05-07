@@ -1,4 +1,4 @@
-{{#block_title}}User registration{{/block_title}}
+{{#block_title}}User registration successful{{/block_title}}
 
 {{#block_body}}
     <h2>You have successfully registered!</h2>

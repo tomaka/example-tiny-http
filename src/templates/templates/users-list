@@ -1,0 +1,14 @@
+{{#block_title}}List of users{{/block_title}}
+
+{{#block_body}}
+    <h2>List of users</h2>
+
+    <p>
+        <ul>
+            {{#users}}
+                <li>{{email}}</li>
+            {{/users}}
+        </ul>
+    </p>
+
+{{/block_body}}

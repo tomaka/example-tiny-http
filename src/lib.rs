@@ -14,6 +14,8 @@ use std::path::Path;
 use std::thread;
 use std::sync::Arc;
 
+use postgres::{Connection, SslMode};
+
 mod database;
 mod routes;
 mod templates;
@@ -27,8 +29,13 @@ pub fn start(db_url: &str, port: u16) {
     let server = Arc::new(tiny_http::ServerBuilder::new().with_port(port).build().unwrap());
     let server = Arc::new(server);
 
-    let mut join_guards = Vec::new();
+    database::migrate(&{
+        let ssl = openssl::ssl::SslContext::new(openssl::ssl::SslMethod::Sslv23).unwrap();
+        let ssl = SslMode::Require(ssl);
+        Connection::connect(db_url, &ssl).unwrap()
+    });
 
+    let mut join_guards = Vec::new();
     for _ in (0 .. 4) {
         let db_url = db_url.to_string();
         let server = server.clone();
@@ -39,8 +46,11 @@ pub fn start(db_url: &str, port: u16) {
                 let server = server.clone();
 
                 thread::catch_panic(move || -> Result<(), Box<Error>> {
-                    // unfortunately the database connection can't be put in an `Arc`
-                    let pool = try!(database::ConnectionPool::new(&db_url));
+                    let ssl = openssl::ssl::SslContext::new(openssl::ssl::SslMethod::Sslv23).unwrap();
+                    let ssl = SslMode::Require(ssl);
+
+                    let mut connection = try!(Connection::connect(&db_url[..], &ssl));
+
                     let templates = templates::TemplatesCache::new();
                     let router = routes::Router::new();
 
@@ -49,18 +59,28 @@ pub fn start(db_url: &str, port: u16) {
                         // trying the static files
                         if let Some(response) = serve_static(&request) {
                             request.respond(response);
+                            continue;
+                        }
+
+                        // creating a new database transaction
+                        let transaction = if !connection.is_desynchronized() {
+                            try!(connection.transaction())
+                        } else {
+                            connection = try!(Connection::connect(&db_url[..], &ssl));
+                            connection.transaction().unwrap()
+                        };
 
                         // trying the routes
-                        } else if let Some(response) = router.handle(&mut request, &templates,
-                                                                     &pool.transaction())
+                        if let Some(response) = router.handle(&mut request, &templates,
+                                                              &transaction)
                         {
                             request.respond(response);
+                            continue;
+                        }
 
                         // 404
-                        } else {
-                            let response = templates.start("404").unwrap().build();
-                            request.respond(response.with_status_code(404));
-                        }
+                        let response = templates.start("404").unwrap().build();
+                        request.respond(response.with_status_code(404));
                     }
 
                     Ok(())

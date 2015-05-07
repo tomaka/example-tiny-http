@@ -1,4 +1,4 @@
-use database;
+use postgres::Transaction;
 use route_recognizer;
 use templates;
 use tiny_http;
@@ -10,7 +10,7 @@ mod users;
 mod www;
 
 type Handler = fn(&mut tiny_http::Request, &route_recognizer::Params, &templates::TemplatesCache,
-                  &database::Transaction)
+                  &Transaction)
                   -> Result<tiny_http::ResponseBox, Box<Error>>;
 
 // TODO: multiple individual routers would be better than a Vec (one for get, one for post, ...)
@@ -26,6 +26,7 @@ impl Router {
 
         get.add("/", www::handle_home_page as Handler);
 
+        get.add("/users", users::handle_users_list as Handler);
         get.add("/users/panic-example", users::handle_panic_example as Handler);
         get.add("/users/register", users::handle_user_register_get as Handler);
         post.add("/users/register", users::handle_user_register_post as Handler);
@@ -39,7 +40,7 @@ impl Router {
     }
 
     pub fn handle(&self, request: &mut tiny_http::Request, templates: &templates::TemplatesCache,
-                  database: &database::Transaction)
+                  database: &Transaction)
                   -> Option<tiny_http::ResponseBox>
     {
         self.routes.iter().find(|&&(ref method, _)| method == request.get_method())

@@ -1,4 +1,4 @@
-use database;
+use postgres::Transaction;
 use routes::authenticate;
 use route_recognizer;
 use templates;
@@ -12,15 +12,36 @@ use std::io::Read;
 ///
 /// Example of a handler that panics, to show panic handling.
 pub fn handle_panic_example(_: &mut tiny_http::Request, _: &route_recognizer::Params,
-                            _: &templates::TemplatesCache, _: &database::Transaction)
+                            _: &templates::TemplatesCache, _: &Transaction)
                             -> Result<tiny_http::ResponseBox, Box<Error>>
 {
     panic!("Oops!");
 }
 
+/// GET /users
+pub fn handle_users_list(_: &mut tiny_http::Request, _: &route_recognizer::Params,
+                         templates: &templates::TemplatesCache, db: &Transaction)
+                         -> Result<tiny_http::ResponseBox, Box<Error>>
+{
+    let users_list = db.prepare_cached("SELECT login FROM users").unwrap();
+    let users_list = users_list.query(&[]).unwrap();
+
+    let template = templates.start("users-list").unwrap();
+    let template = template.insert_map("users", |mut builder| {
+        for user in &users_list {
+            let email: String = user.get("login");
+            builder = builder.insert_str("email", email);
+        }
+
+        builder
+    });
+
+    Ok(template.build().boxed())
+}
+
 /// GET /users/register
 pub fn handle_user_register_get(_: &mut tiny_http::Request, _: &route_recognizer::Params,
-                                templates: &templates::TemplatesCache, _: &database::Transaction)
+                                templates: &templates::TemplatesCache, _: &Transaction)
                                 -> Result<tiny_http::ResponseBox, Box<Error>>
 {
     Ok(templates.start("user-register").unwrap().build().boxed())
@@ -28,7 +49,7 @@ pub fn handle_user_register_get(_: &mut tiny_http::Request, _: &route_recognizer
 
 /// POST /users/register
 pub fn handle_user_register_post(request: &mut tiny_http::Request, _: &route_recognizer::Params,
-                                 templates: &templates::TemplatesCache, db: &database::Transaction)
+                                 templates: &templates::TemplatesCache, db: &Transaction)
                                  -> Result<tiny_http::ResponseBox, Box<Error>>
 {
     let mut data = Vec::new();
@@ -52,5 +73,6 @@ pub fn handle_user_register_post(request: &mut tiny_http::Request, _: &route_rec
     // FIXME: hash the password
     db.execute("INSERT INTO users(login, password) VALUES ($1, $2)", &[&email, &password]).unwrap();
 
+    db.set_commit();
     Ok(templates.start("user-register-success").unwrap().insert_str("email", email).build().boxed())
 }

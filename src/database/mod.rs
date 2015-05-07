@@ -1,4 +1,3 @@
-pub use self::db::{ConnectionPool, Transaction};
+pub use self::migration::migrate;
 
-mod db;
 mod migration;

@@ -25,6 +25,8 @@ impl TemplatesCache {
                          mustache::compile_str(include_str!("templates/404")));
         templates.insert("home".to_string(),
                          mustache::compile_str(include_str!("templates/home")));
+        templates.insert("users-list".to_string(),
+                         mustache::compile_str(include_str!("templates/users-list")));
         templates.insert("user-register".to_string(),
                          mustache::compile_str(include_str!("templates/user-register")));
         templates.insert("user-register-success".to_string(),
@@ -106,6 +108,20 @@ impl<'a> TemplateApplier<'a> {
     /// Adds a string.
     pub fn insert_str<K: ToString, V: ToString>(mut self, key: K, value: V) -> TemplateApplier<'a> {
         self.map = self.map.insert_str(key, value);
+        self
+    }
+
+    pub fn insert_vec<K: ToString, F>(mut self, key: K, f: F) -> TemplateApplier<'a>
+        where F: FnMut(mustache::VecBuilder) -> mustache::VecBuilder
+    {
+        self.map = self.map.insert_vec(key, f);
+        self
+    }
+
+    pub fn insert_map<K: ToString, F>(mut self, key: K, f: F) -> TemplateApplier<'a>
+        where F: FnMut(mustache::MapBuilder) -> mustache::MapBuilder
+    {
+        self.map = self.map.insert_map(key, f);
         self
     }
 }
